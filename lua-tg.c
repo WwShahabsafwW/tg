@@ -679,6 +679,32 @@ static int pos;
 static inline tgl_peer_t *get_peer (const char *s) { 
   return tgl_peer_get_by_name (TLS, s);
 }
+
+    case lqptr[p + 1].msg_id, lua_ptr[p + 2].str, NULL, 0, TGL_SEND_MSG_FLAG_DOCUMENT_AUTO, lua_msg_cb, lua_ptr[p].ptr);
+      p += 3;
+      break;
+    case lq_reply_location: // TODO - I DON'T UNDERSTAND WHY IT'S NOT WORKING
+      tgl_do_reply_location (TLS, &lua_ptr[p + 1].msg_id, lua_ptr[p + 2].dnum, lua_ptr[p + 3].dnum, 0, lua_msg_cb, lua_ptr[p].ptr);
+      p += 4;
+      break;
+    case lq_reply_photo:
+      tgl_do_reply_document (TLS, &lua_ptr[p + 1].msg_id, lua_ptr[p + 2].str, NULL, 0, TGL_SEND_MSG_FLAG_DOCUMENT_PHOTO, lua_msg_cb, lua_ptr[p].ptr);
+      p += 3;
+      break;
+    case lq_reply_video:
+      tgl_do_reply_document (TLS, &lua_ptr[p + 1].msg_id, lua_ptr[p + 2].str, NULL, 0, TGL_SEND_MSG_FLAG_DOCUMENT_VIDEO, lua_msg_cb, lua_ptr[p].ptr);
+      p += 3;
+      break;
+      
+        {"reply_msg", lq_reply, { lfp_msg, lfp_string, lfp_none }},
+        {"reply_file", lq_reply_file, {lfp_msg, lfp_string, lfp_none}},
+        {"reply_audio", lq_send_audio, {lfp_msg, lfp_string, lfp_none}},
+        {"reply_location", lq_reply_location, { lfp_msg, lfp_double, lfp_double, lfp_none }},
+        {"reply_document", lq_reply_document, {lfp_msg, lfp_string, lfp_none}},
+        {"reply_photo", lq_reply_photo, {lfp_msg, lfp_string, lfp_none}},
+        {"reply_video", lq_reply_video, {lfp_msg, lfp_string, lfp_none}},
+
+
   
 enum lua_query_type {
   lq_contact_list,
@@ -689,6 +715,7 @@ enum lua_query_type {
   lq_send_typing_abort,
   lq_rename_chat,
   lq_send_photo,
+  lq_send_photo2,
   lq_chat_set_photo,
   lq_set_profile_photo,
   lq_set_profile_name,
@@ -753,6 +780,11 @@ enum lua_query_type {
   lq_channel_set_admin,
   lq_channel_set_mod,
   lq_channel_demote
+  lq_reply_file,
+  lq_reply_photo,
+  lq_reply_video,
+  lq_reply_location,
+  lq_reply_document
 };
 
 struct lua_query_extra {
@@ -1139,7 +1171,6 @@ void lua_user_cb (struct tgl_state *TLSR, void *cb_extra, int success, struct tg
 
   free (cb);
 }
-
 void lua_str_cb (struct tgl_state *TLSR, void *cb_extra, int success, const char *data) {
   assert (TLSR == TLS);
   struct lua_query_extra *cb = cb_extra;
@@ -1223,7 +1254,7 @@ void lua_do_all (void) {
       tgl_do_get_dialog_list (TLS, 100, 0, lua_dialog_list_cb, lua_ptr[p ++].ptr);
       break;
     case lq_msg:
-      tgl_do_send_message (TLS, lua_ptr[p + 1].peer_id, LUA_STR_ARG (p + 2), 0, NULL, lua_msg_cb, lua_ptr[p].ptr);
+      tgl_do_send_message (TLS, lua_ptr[p + 1].peer_id, LUA_STR_ARG (p + 2), TGLMF_HTML, NULL, lua_msg_cb, lua_ptr[p].ptr);
       p += 3;
       break;
     case lq_msg_channel:
@@ -1245,6 +1276,10 @@ void lua_do_all (void) {
     case lq_send_photo:
       tgl_do_send_document (TLS, lua_ptr[p + 1].peer_id, lua_ptr[p + 2].str, NULL, 0, TGL_SEND_MSG_FLAG_DOCUMENT_PHOTO, lua_msg_cb, lua_ptr[p].ptr);
       p += 3;
+      break;
+	case lq_send_photo2:
+      tgl_do_send_document (TLS, lua_ptr[p + 1].peer_id, lua_ptr[p + 2].str, lua_ptr[p + 3].str, strlen(lua_ptr[p + 3].str), TGL_SEND_MSG_FLAG_DOCUMENT_PHOTO, lua_msg_cb, lua_ptr[p].ptr);
+      p += 4;
       break;
     case lq_send_video:
       tgl_do_send_document (TLS, lua_ptr[p + 1].peer_id, lua_ptr[p + 2].str, NULL, 0, TGL_SEND_MSG_FLAG_DOCUMENT_VIDEO, lua_msg_cb, lua_ptr[p].ptr);
@@ -1571,6 +1606,7 @@ struct lua_function functions[] = {
   {"send_typing", lq_send_typing, { lfp_peer, lfp_none }},
   {"send_typing_abort", lq_send_typing_abort, { lfp_peer, lfp_none }},
   {"send_photo", lq_send_photo, { lfp_peer, lfp_string, lfp_none }},
+  {"send_photo2", lq_send_photo2, { lfp_peer, lfp_string, lfp_string, lfp_none }},
   {"send_video", lq_send_video, { lfp_peer, lfp_string, lfp_none }},
   {"send_audio", lq_send_audio, { lfp_peer, lfp_string, lfp_none }},
   {"send_document", lq_send_document, { lfp_peer, lfp_string, lfp_none }},
