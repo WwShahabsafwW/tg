@@ -695,17 +695,7 @@ static inline tgl_peer_t *get_peer (const char *s) {
       tgl_do_reply_document (TLS, &lua_ptr[p + 1].msg_id, lua_ptr[p + 2].str, NULL, 0, TGL_SEND_MSG_FLAG_DOCUMENT_VIDEO, lua_msg_cb, lua_ptr[p].ptr);
       p += 3;
       break;
-      
-        {"reply_msg", lq_reply, { lfp_msg, lfp_string, lfp_none }},
-        {"reply_file", lq_reply_file, {lfp_msg, lfp_string, lfp_none}},
-        {"reply_audio", lq_send_audio, {lfp_msg, lfp_string, lfp_none}},
-        {"reply_location", lq_reply_location, { lfp_msg, lfp_double, lfp_double, lfp_none }},
-        {"reply_document", lq_reply_document, {lfp_msg, lfp_string, lfp_none}},
-        {"reply_photo", lq_reply_photo, {lfp_msg, lfp_string, lfp_none}},
-        {"reply_video", lq_reply_video, {lfp_msg, lfp_string, lfp_none}},
 
-
-  
 enum lua_query_type {
   lq_contact_list,
   lq_dialog_list,
@@ -1672,6 +1662,15 @@ struct lua_function functions[] = {
   {"channel_set_admin", lq_channel_set_admin, { lfp_channel, lfp_peer, lfp_none }},
   {"channel_set_mod", lq_channel_set_mod, { lfp_channel, lfp_peer, lfp_none }},
   {"channel_demote", lq_channel_demote, { lfp_channel, lfp_peer, lfp_none }},
+  {"reply_msg", lq_reply, { lfp_msg, lfp_string, lfp_none }},
+  {"reply_file", lq_reply_file, {lfp_msg, lfp_string, lfp_none}},
+  {"reply_audio", lq_send_audio, {lfp_msg, lfp_string, lfp_none}},
+  {"reply_location", lq_reply_location, { lfp_msg, lfp_double, lfp_double, lfp_none }},
+  {"reply_document", lq_reply_document, {lfp_msg, lfp_string, lfp_none}},
+  {"reply_photo", lq_reply_photo, {lfp_msg, lfp_string, lfp_none}},
+  {"reply_video", lq_reply_video, {lfp_msg, lfp_string, lfp_none}},
+
+
   { 0, 0, { lfp_none}}
 };
 
